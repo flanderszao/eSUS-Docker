@@ -1,7 +1,7 @@
-FROM openjdk:17-jdk-bullseye
+FROM eclipse-temurin:17-jdk
 #argumentos para build
 #Link para download do instalador versão Linux.
-ARG URL_DOWNLOAD_ESUS="https://arquivos.esusab.ufsc.br/PEC/1af9b7ee9c3886bd/5.3.21/eSUS-AB-PEC-5.3.21-Linux64.jar"
+ARG URL_DOWNLOAD_ESUS="https://arquivos.esusaps.ufsc.br/PEC/e05d0f216b67efe0/5.4.22/eSUS-AB-PEC-5.4.22-Linux64.jar"
 #Configurações de conexão com o banco de dados. Por padrão assume que esteja na máquina host
 ARG APP_DB_URL="jdbc:postgresql://host.docker.internal:5433/esus"
 ARG APP_DB_USER="postgres"
@@ -9,21 +9,18 @@ ARG APP_DB_PASSWORD="esus"
 
 RUN echo " Argumentos da build ->  ${APP_DB_URL} - ${APP_DB_USER} - ${APP_DB_PASSWORD}"
 
-#Atualiza a sources.list do Debian para poder instalar as fonts do windows.
-RUN cat <<EOF > /etc/apt/sources.list
-deb http://deb.debian.org/debian bullseye main contrib non-free
-deb-src http://deb.debian.org/debian bullseye main contrib non-free
-deb http://deb.debian.org/debian-security/ bullseye-security main contrib non-free
-deb-src http://deb.debian.org/debian-security/ bullseye-security main contrib non-free
-deb http://deb.debian.org/debian bullseye-updates main contrib non-free
-deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free
-EOF
-RUN apt update
-RUN apt-get install -y ttf-mscorefonts-installer
-#Instala o init e o file porque o instalador do ESUS executa esses comandos.
-RUN apt-get install -y init
-RUN apt-get install -y file
-RUN apt clean
+# Install required packages (fonts, init, file, wget). Keep apt non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	debconf-utils \
+	ca-certificates \
+	wget \
+	ttf-mscorefonts-installer \
+	init \
+	file \
+ && echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections \
+ && apt-get install -y --no-install-recommends ttf-mscorefonts-installer || true \
+ && rm -rf /var/lib/apt/lists/*
 
 #Define o fuso horário, coloque o fuso horário de sua região.
 RUN rm -rf /etc/localtime

@@ -19,7 +19,7 @@ services:
     build:
       context: webserver
       args:
-        - URL_DOWNLOAD_ESUS=https://arquivos.esusab.ufsc.br/PEC/1af9b7ee9c3886bd/5.3.21/eSUS-AB-PEC-5.3.21-Linux64.jar
+        - URL_DOWNLOAD_ESUS=https://arquivos.esusaps.ufsc.br/PEC/e05d0f216b67efe0/5.4.22/eSUS-AB-PEC-5.4.22-Linux64.jar
         - APP_DB_URL
         - APP_DB_USER=postgres
         - APP_DB_PASSWORD=esus
