@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Iniciando a build do serviço database ..."
-docker compose up -d database
+docker compose up -d --build database
 
 CONTAINER=$(docker compose ps -q database)
 STATUS=$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER)
@@ -16,7 +16,7 @@ done
 export APP_DB_URL="jdbc:postgresql://$(hostname -I | awk '{print $1}'):5432/esus"
 
 echo "Iniciando o build do serviço webservice ..."
-docker compose up -d webserver
+docker compose up -d --build webserver
 
 CONTAINER=$(docker compose ps -q webserver)
 STATUS=$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER)

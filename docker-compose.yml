@@ -8,7 +8,7 @@ services:
     networks:
       - esus_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U esus"]
       interval: 10s
       retries: 5
       start_period: 30s
@@ -19,10 +19,11 @@ services:
     build:
       context: webserver
       args:
-        - URL_DOWNLOAD_ESUS=https://arquivos.esusaps.ufsc.br/PEC/e05d0f216b67efe0/5.4.22/eSUS-AB-PEC-5.4.22-Linux64.jar
-        - APP_DB_URL
-        - APP_DB_USER=postgres
-        - APP_DB_PASSWORD=esus
+        - URL_DOWNLOAD_ESUS=https://arquivos.esusaps.ufsc.br/PEC/bacaf0eccedf69d4/5.4.26/eSUS-AB-PEC-5.4.26-Linux64.jar
+    environment:
+      - APP_DB_URL=jdbc:postgresql://database:5432/esus
+      - APP_DB_USER=esus
+      - APP_DB_PASSWORD=esus
     ports:
       - '8080:8080'
     networks:
@@ -36,6 +37,23 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+
+  pgadmin:
+    container_name: esus_pgadmin
+    image: dpage/pgadmin4:6.8
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@esus.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
+      PGADMIN_CONFIG_WTF_CSRF_ENABLED: 'False'
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 10
+    ports:
+      - "5050:80"
+    networks:
+      - esus_network
+    depends_on:
+      - database
+
 networks:
   esus_network:
     driver: bridge
